@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destine Plug - Products</title>
+    <style>
+        /* Your existing CSS styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .header {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            max-height: 200px;
+            margin-bottom: 15px;
+        }
+
+        nav {
+            padding: 15px;
+            background: #fff;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            margin: 0 20px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #1e90ff; /* Blue hover color */
+        }
+
+        .search-container {
+            position: absolute;
+            top: 20px;
+            right: 100px; /* Adjust based on cart icon position */
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+            width: 200px;
+            transition: width 0.3s;
+        }
+
+        .search-container input[type="text"]:focus {
+            width: 250px;
+        }
+
+        .search-container i {
+            margin-left: 10px;
+            color: #1e90ff;
+            cursor: pointer;
+        }
+
+        .products-container {
+            padding: 50px 5%;
+            min-height: 100vh;
+        }
+
+        .filter-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .filter-container i {
+            margin-right: 10px;
+            color: #1e90ff;
+        }
+
+        .filter-container select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 0 auto;
+            max-width: 1400px;
+        }
+
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .price {
+            color: #1e90ff;
+            font-size: 1.2em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: #1e90ff;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0077cc;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px 0;
+        }
+
+        .page-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .page-btn.active {
+            background: #1e90ff;
+            color: #fff;
+            border-color: #1e90ff;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%; /* Adjusted for smaller screens */
+            width: 500px; /* Default width for larger screens */
+            text-align: center;
+            position: relative;
+            overflow-y: auto; /* Enable scrolling for small screens */
+            max-height: 90vh; /* Limit height to 90% of viewport height */
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto; /* Make image height responsive */
+            max-height: 300px; /* Limit image height */
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-content h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            font-size: 1em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .modal-content .price {
+            font-size: 1.2em;
+            color: #1e90ff;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .close-btn:hover {
+            color: #1e90ff;
+        }
+
+        /* New Product Block Styles */
+        .product-block__inner {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-block__inner:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .image--shape-1 {
+            position: relative;
+        }
+
+        .image__primary {
+            position: relative;
+        }
+
+        .rimage-outer-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rimage-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-top: 100%;
+        }
+
+        .rimage__image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-label--sale {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4757;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .product-block__title-price {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .product-block__title-price .title {
+            font-size: 1.1em;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .price.on-sale {
+            margin-top: 10px;
+        }
+
+        .price.on-sale .amount {
+            color: #1e90ff;
+            font-weight: bold;
+        }
+
+        .price.on-sale del {
+            color: #888;
+            margin-left: 5px;
+        }
+
+        .product-form--mini {
+            padding: 0 15px 15px;
+        }
+
+        .mini-product-purchase-form {
+            display: flex;
+            justify-content: center;
+        }
+
+        .qty-adjuster-container {
+            padding: 0 15px 15px;
+        }
+
+        .qty-adjuster--ajax {
+            display: flex;
+            justify-content: center;
+        }
+
+        .qty-adjuster__inner {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            overflow: hidden;
+        }
+
+        .qty-adjuster__down,
+        .qty-adjuster__up {
+            background: #f8f8f8;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .qty-adjuster__value {
+            width: 40px;
+            text-align: center;
+            border: none;
+            outline: none;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        /* Cart Icon and Dropdown */
+        .cart-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48d71f;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-icon i {
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .cart-icon .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+
+        .cart-dropdown {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .cart-dropdown.active {
+            display: block;
+        }
+
+        .cart-dropdown h2 {
+            margin-bottom: 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+
+        .cart-item div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cart-item span {
+            font-size: 0.9em;
+        }
+
+        .cart-item .qty-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cart-item .qty-adjuster button {
+            background: #f8f8f8;
+            border: none;
+            padding: 2px 8px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .cart-item .qty-adjuster button:hover {
+            background: #ddd;
+        }
+
+        #sendToWhatsApp {
+            background: #25D366;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        #sendToWhatsApp:hover {
+            background: #1da851;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/067 453 9254 (7).png" alt="Destine Plug Logo" class="logo">
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="/About.html">About Us</a>
+        </nav>
+        <!-- Search Container -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search products..." oninput="searchProducts()">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <!-- Cart Icon -->
+    <div class="cart-icon" onclick="toggleCartDropdown()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cartCount">0</span>
+    </div>
+
+    <!-- Cart Dropdown -->
+    <div class="cart-dropdown" id="cartDropdown">
+        <h2>Your Cart</h2>
+        <div id="cartItems" style="margin: 15px 0;"></div>
+        <p><strong>Total: </strong><span id="cartTotal">R0</span></p>
+        <button id="sendToWhatsApp" class="btn">
+            Send Order via WhatsApp
+        </button>
+    </div>
+
+    <div class="products-container">
+        <div class="filter-container">
+            <i class="fas fa-filter"></i>
+            <select id="sortFilter" onchange="sortProducts()">
+                <option value="default">Sort by</option>
+                <option value="lowToHigh">Price: Low to High</option>
+                <option value="highToLow">Price: High to Low</option>
+            </select>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <img id="modalImage" src="" alt="Product Image">
+            <h3 id="modalName"></h3>
+            <p id="modalDescription"></p>
+            <p class="price" id="modalPrice"></p>
+        </div>
+    </div>
+
+    <script>
+        // Actual product data with unique names, prices, descriptions, and images
+        let products = [
+            {
+                id: 1,
+                name: "Nano Machine",
+                price: "R1400",
+                originalPrice: "R1900",
+                saleAmount: "27%",
+                description: "Currently out of stock,available on Pre-Order ship in 15 to 21days,make R400+ Daily providing screeen protector services",
+                image: "/FB_IMG_1738689783857.jpg"
+            },
+            {
+                id: 2,
+                name: "BerryBerry",
+                price: "R80",
+                originalPrice: "R100",
+                saleAmount: "20%",
+                description: "",
+                image: "/40ml-BerryBerry-Bottle.jpg"
+            },
+            {
+                id: 16,
+                name: "Real Olive",
+                price: "R20",
+                originalPrice: "R30",
+                saleAmount: "33%",
+                description: "",
+                image: "/Ud44703f6bdb54576b79e95ee431c65c9Q.png_720x720q50.png"
+            },
+            {
+                id: 17,
+                name: "SheaButterEssence",
+                price: "R20",
+                originalPrice: "R30",
+                saleAmount: "33%",
+                description: "",
+                image: "/FarmStayRealSheaButterEssenceMask2.jpg"
+            },
+        ];
+
+        // Pagination settings
+        const itemsPerPage = 17;
+        let currentPage = 1;
+
+        // Cart functionality
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function displayProducts(page, productsToDisplay = products) {
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedProducts = productsToDisplay.slice(startIndex, endIndex);
+
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = paginatedProducts.map(product => `
+                <div class="product-block__inner">
+                    <div class="image image--shape-1">
+                        <div class="inner">
+                            <a href="#" onclick="openModal(${product.id}); return false;">
+                                <div class="image__primary">
+                                    <div class="rimage-outer-wrapper">
+                                        <div class="rimage-wrapper" style="padding-top:100%">
+                                            <img class="rimage__image" src="${product.image}" alt="${product.name}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <span class="product-label product-label--sale">
+                            <span>Save ${product.saleAmount}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="product-block__title-price">
+                        <a class="title" href="#">
+                            ${product.name}
+                        </a>
+                        <div class="price on-sale">
+                            <span class="amount theme-money">${product.price}</span>
+                            <del><span class="theme-money">${product.originalPrice}</span></del>
+                        </div>
+                    </div>
+
+                    <div class="product-form product-form--mini">
+                        <form class="mini-product-purchase-form" onsubmit="addToCart(event, ${product.id})">
+                            <button type="submit" class="btn product-add">
+                                <span class="button-text">Add to cart</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="qty-adjuster-container">
+                        <div class="qty-adjuster qty-adjuster--ajax">
+                            <div class="qty-adjuster__inner">
+                                <button class="btn qty-adjuster__down">−</button>
+                                <input class="qty-adjuster__value" type="text" value="1">
+                                <button class="btn qty-adjuster__up">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupPagination(productsToDisplay = products) {
+            const pageCount = Math.ceil(productsToDisplay.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            pagination.innerHTML = Array.from({length: pageCount}, (_, i) => `
+                <button class="page-btn ${i + 1 === currentPage ? 'active' : ''}" 
+                        onclick="changePage(${i + 1})">
+                    ${i + 1}
+                </button>
+            `).join('');
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            displayProducts(currentPage);
+            setupPagination();
+        }
+
+        // Modal functionality
+        function openModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                document.getElementById('modalImage').src = product.image;
+                document.getElementById('modalName').innerText = product.name;
+                document.getElementById('modalDescription').innerText = product.description;
+                document.getElementById('modalPrice').innerText = product.price;
+                document.getElementById('productModal').style.display = 'flex';
+            }
+        }
+
+        // Close modal
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('productModal').style.display = 'none';
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Initial load
+        displayProducts(currentPage);
+        setupPagination();
+        updateCartDisplay();
+
+        // Cart functionality
+        function addToCart(event, productId) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            const quantityInput = form.parentElement.parentElement.querySelector('.qty-adjuster__value');
+            const quantity = parseInt(quantityInput.value) || 1;
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Clean price value (remove 'R' and commas)
+            const price = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: price,
+                    quantity: quantity,
+                    image: product.image
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartCount = document.getElementById('cartCount');
+
+            cartItems.innerHTML = cart.length > 0 ?
+                cart.map(item => `
+                    <div class="cart-item">
+                        <div>
+                            <img src="${item.image}" alt="${item.name}">
+                            <span>${item.name}</span>
+                        </div>
+                        <div class="qty-adjuster">
+                            <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity - 1})">−</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                        </div>
+                        <span>R${(item.quantity * item.price).toFixed(2)}</span>
+                    </div>
+                `).join('') :
+                '<p>Your cart is empty</p>';
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.textContent = `R${total.toFixed(2)}`;
+            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        function updateCartItemQuantity(productId, newQuantity) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                if (newQuantity <= 0) {
+                    cart = cart.filter(item => item.id !== productId);
+                } else {
+                    item.quantity = newQuantity;
+                }
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartDisplay();
+            }
+        }
+
+        // WhatsApp integration
+        document.getElementById('sendToWhatsApp').addEventListener('click', () => {
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            const message = cart.map(item =>
+                `*${item.name}*%0A` +
+                `Quantity: ${item.quantity}%0A` +
+                `Price: R${item.price.toFixed(2)} each%0A` +
+                `Total: R${(item.quantity * item.price).toFixed(2)}%0A%0A`
+            ).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const whatsappMessage = encodeURIComponent(
+                `Hello Destine Plug!%0A%0A` +
+                `I would like to order:%0A%0A${message}` +
+                `*Grand Total: R${total.toFixed(2)}*%0A%0A` +
+                `Please confirm my order. Thank you!`
+            );
+
+            window.open(`https://wa.me/27674539254?text=${whatsappMessage}`, '_blank');
+        });
+
+        // Add quantity adjuster functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('qty-adjuster__down')) {
+                const input = e.target.parentElement.querySelector('.qty-adjuster__value');
+                input.value = Math.max(1, parseInt(input.value) - 1);
+            }
+
+            if (e.target.classList.contains('qty-adjuster__up')) {
+                const input = e.target.parentElement.querySelector('.qty-adjuster__value');
+                input.value = parseInt(input.value) + 1;
+            }
+        });
+
+        // Sorting functionality
+        function sortProducts() {
+            const sortFilter = document.getElementById('sortFilter').value;
+            let sortedProducts = [...products];
+
+            if (sortFilter === 'lowToHigh') {
+                sortedProducts.sort((a, b) => parseFloat(a.price.replace(/[^0-9.]/g, '')) - parseFloat(b.price.replace(/[^0-9.]/g, '')));
+            } else if (sortFilter === 'highToLow') {
+                sortedProducts.sort((a, b) => parseFloat(b.price.replace(/[^0-9.]/g, '')) - parseFloat(a.price.replace(/[^0-9.]/g, '')));
+            }
+
+            // Update the displayed products
+            products = sortedProducts;
+            displayProducts(currentPage);
+        }
+
+        // Toggle cart dropdown
+        function toggleCartDropdown() {
+            const cartDropdown = document.getElementById('cartDropdown');
+            cartDropdown.classList.toggle('active');
+        }
+
+        // Search functionality
+        function searchProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredProducts = products.filter(product => 
+                product.name.toLowerCase().includes(searchTerm)
+            );
+            displayProducts(1, filteredProducts);
+            setupPagination(filteredProducts);
+        }
+    </script>
+</body>
+</html>
